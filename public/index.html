@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Viewer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>🛒 Inventory Viewer</h1>
+
+  <section>
+    <h2>Products</h2>
+    <ul id="product-list"></ul>
+  </section>
+
+  <section>
+    <h2>Categories</h2>
+    <ul id="category-list"></ul>
+  </section>
+
+  <script>
+    async function fetchData() {
+      const productsRes = await fetch('/api/products');
+      const categoriesRes = await fetch('/api/categories');
+      const products = await productsRes.json();
+      const categories = await categoriesRes.json();
+
+      const productList = document.getElementById('product-list');
+      const categoryList = document.getElementById('category-list');
+
+      products.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.name} - $${p.price} (${p.quantity} units)`;
+        productList.appendChild(li);
+      });
+
+      categories.forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = c.name;
+        categoryList.appendChild(li);
+      });
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
