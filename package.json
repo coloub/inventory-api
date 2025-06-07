@@ -14,7 +14,7 @@
     "api",
     "inventory"
   ],
-  "author": "Tu Nombre",
+  "author": "Jose Mendoza",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",

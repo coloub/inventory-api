@@ -9,8 +9,13 @@ exports.getAll = async (req, res) => {
   }
 };
 
+const mongoose = require('mongoose');
+
 exports.create = async (req, res) => {
   try {
+    if (req.body.category && !mongoose.Types.ObjectId.isValid(req.body.category)) {
+      return res.status(400).json({ message: 'Invalid category ObjectId' });
+    }
     const newProduct = new Product(req.body);
     const saved = await newProduct.save();
     res.status(201).json(saved);
@@ -21,6 +26,9 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
+    if (req.body.category && !mongoose.Types.ObjectId.isValid(req.body.category)) {
+      return res.status(400).json({ message: 'Invalid category ObjectId' });
+    }
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
   } catch (err) {
