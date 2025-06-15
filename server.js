@@ -48,21 +48,7 @@ app.use(cors({
 }));
 
 // Swagger Documentation (updated to include auth)
-const swaggerOptions = {
-  ...specs,
-    components: {
-      ...specs.components,
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
-    }
-  };
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOptions, {
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Inventory API Documentation'
 }));
