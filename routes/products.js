@@ -8,8 +8,12 @@ const {
 } = require('../controllers/productController');
 
 const { productValidation, handleValidationErrors } = require('../middleware/validation');
+const { authenticateJWT, requireAdmin } = require('../middleware/auth'); // NEW
 
 const router = express.Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT); // NEW: All product routes now require authentication
 
 /**
  * @swagger
@@ -268,6 +272,10 @@ router.put('/:id', productValidation, handleValidationErrors, updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', deleteProduct);
+router.get('/', getProducts);
+router.get('/:id', getProduct);
+router.post('/', productValidation, handleValidationErrors, createProduct);
+router.put('/:id', productValidation, handleValidationErrors, updateProduct);
+router.delete('/:id', requireAdmin, deleteProduct); // NEW: Only admin can delete
 
 module.exports = router;

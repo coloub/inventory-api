@@ -1,12 +1,18 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const cookieParser = require('cookie-parser'); // NEW
+const passport = require('passport'); // NEW
+const session = require('express-session'); // NEW (install with: npm install express-session)
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { specs, swaggerUi } = require('./config/swagger');
 
 // Load environment variables
 dotenv.config();
+
+// Passport configuration
+require('./config/passport')(passport); // NEW
 
 // Connect to database
 connectDB();
@@ -17,18 +23,54 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Enable CORS
-app.use(cors());
+// Cookie parser middleware
+app.use(cookieParser()); // NEW
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+// Session middleware (required for Passport)
+app.use(session({ // NEW
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize()); // NEW
+app.use(passport.session()); // NEW
+
+// Enable CORS
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true // Important for cookies
+}));
+
+// Swagger Documentation (updated to include auth)
+const swaggerOptions = {
+  ...specs,
+    components: {
+      ...specs.components,
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    }
+  };
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOptions, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Inventory API Documentation'
 }));
 
 // Routes
-app.use('/api/v1/products', require('./routes/products'));
-app.use('/api/v1/categories', require('./routes/categories')); // NEW: Category routes
+app.use('/auth', require('./routes/auth')); // NEW: Auth routes
+app.use('/api/v1/products', require('./routes/products')); // Will be protected
+app.use('/api/v1/categories', require('./routes/categories')); // Will be protected
 
 // Health check route
 app.get('/', (req, res) => {
@@ -36,9 +78,11 @@ app.get('/', (req, res) => {
     message: 'Inventory API is running!',
     version: '1.0.0',
     documentation: '/api-docs',
+    authentication: '/auth/google', // NEW
     endpoints: {
+      auth: '/auth',
       products: '/api/v1/products',
-      categories: '/api/v1/categories' // NEW: Show category endpoint
+      categories: '/api/v1/categories'
     }
   });
 });
@@ -51,12 +95,12 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
+  console.log(`Google OAuth login at http://localhost:${PORT}/auth/google`); // NEW
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
-  // Close server & exit process
   server.close(() => {
     process.exit(1);
   });

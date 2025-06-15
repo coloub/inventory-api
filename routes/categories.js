@@ -8,8 +8,12 @@ const {
 } = require('../controllers/categoryController');
 
 const { categoryValidation, handleValidationErrors } = require('../middleware/validation');
+const { authenticateJWT, requireAdmin } = require('../middleware/auth'); // NEW
 
 const router = express.Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT); // All category routes now require authentication
 
 /**
  * @swagger
@@ -236,6 +240,10 @@ router.put('/:id', categoryValidation, handleValidationErrors, updateCategory);
  *       400:
  *         description: Cannot delete - category is being used by products
  */
-router.delete('/:id', deleteCategory);
+router.get('/', getAllCategories);
+router.get('/:id', getCategoryById);
+router.post('/', categoryValidation, handleValidationErrors, createCategory);
+router.put('/:id', categoryValidation, handleValidationErrors, updateCategory);
+router.delete('/:id', requireAdmin, deleteCategory); // Only admin can delete
 
 module.exports = router;
