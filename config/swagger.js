@@ -15,8 +15,10 @@ const options = {
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 3000}`,
-        description: 'Development server'
+        url: process.env.NODE_ENV === 'production'
+          ? `https://${process.env.DOMAIN || 'inventory-api-hrlt.onrender.com'}`
+          : `http://localhost:${process.env.PORT || 3000}`,
+        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
       }
     ],
     components: {
