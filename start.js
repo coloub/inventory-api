@@ -14,7 +14,7 @@ const HOST = '0.0.0.0'; // 👈 Permite conexiones externas
 
 const server = app.listen(PORT, HOST, () => {
   const domain = process.env.NODE_ENV === 'production'
-    ? `https://${process.env.DOMAIN || 'tudominio.com'}`
+    ? `https://${process.env.DOMAIN || 'inventory-api-hrlt.onrender.com'}`
     : `http://localhost:${PORT}`;
 
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
