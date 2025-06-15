@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
 
-// Product validation rules
+// Product validation rules (existing code)
 const productValidation = [
   body('name')
     .trim()
@@ -38,7 +38,23 @@ const productValidation = [
     .withMessage('Vendor must be between 1 and 100 characters')
 ];
 
-// Middleware to handle validation errors
+// Category validation rules
+const categoryValidation = [
+  body('name')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Category name must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z0-9\s&-]+$/)
+    .withMessage('Category name can only contain letters, numbers, spaces, ampersands, and hyphens'),
+  
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('Description cannot exceed 200 characters')
+];
+
+// Middleware to handle validation errors (existing code)
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -53,5 +69,6 @@ const handleValidationErrors = (req, res, next) => {
 
 module.exports = {
   productValidation,
+  categoryValidation, // NEW: Export category validation
   handleValidationErrors
 };

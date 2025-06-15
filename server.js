@@ -28,13 +28,18 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 
 // Routes
 app.use('/api/v1/products', require('./routes/products'));
+app.use('/api/v1/categories', require('./routes/categories')); // NEW: Category routes
 
 // Health check route
 app.get('/', (req, res) => {
   res.json({
     message: 'Inventory API is running!',
     version: '1.0.0',
-    documentation: '/api-docs'
+    documentation: '/api-docs',
+    endpoints: {
+      products: '/api/v1/products',
+      categories: '/api/v1/categories' // NEW: Show category endpoint
+    }
   });
 });
 
