@@ -71,6 +71,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOptions, {
 app.use('/auth', require('./routes/auth')); // NEW: Auth routes
 app.use('/api/v1/products', require('./routes/products')); // Will be protected
 app.use('/api/v1/categories', require('./routes/categories')); // Will be protected
+app.use('/api/v1/transactions', require('./routes/transactions')); // NEW: Transaction routes
 
 // Health check route
 app.get('/', (req, res) => {

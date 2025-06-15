@@ -54,6 +54,27 @@ const categoryValidation = [
     .withMessage('Description cannot exceed 200 characters')
 ];
 
+// Transaction validation rules
+const transactionValidation = [
+  body('type')
+    .isIn(['input', 'output'])
+    .withMessage('Transaction type must be either "input" or "output"'),
+  
+  body('product')
+    .isMongoId()
+    .withMessage('Product must be a valid MongoDB ObjectId'),
+  
+  body('quantity')
+    .isInt({ min: 1 })
+    .withMessage('Quantity must be a positive integer (minimum 1)'),
+  
+  body('notes')
+    .optional()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Notes cannot exceed 500 characters')
+];
+
 // Middleware to handle validation errors (existing code)
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -69,6 +90,7 @@ const handleValidationErrors = (req, res, next) => {
 
 module.exports = {
   productValidation,
-  categoryValidation, // NEW: Export category validation
+  categoryValidation,
+  transactionValidation, // NEW: Export transaction validation
   handleValidationErrors
 };
