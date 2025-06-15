@@ -5,6 +5,17 @@ const { createTestUserAndToken, generateInvalidToken } = require('./helpers/test
 describe('Categories API', () => {
   let authToken;
   let user;
+  let server;
+
+  beforeAll((done) => {
+    server = app.listen(() => {
+      done();
+    });
+  });
+
+  afterAll((done) => {
+    server.close(done);
+  });
 
   beforeEach(async () => {
     // Create test user and get auth token
