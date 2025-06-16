@@ -281,8 +281,6 @@ router.post('/login', async (req, res) => {
  *                 token:
  *                   type: string
  */
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 
 router.get('/token', async (req, res) => {
   try {
