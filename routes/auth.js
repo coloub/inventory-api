@@ -264,4 +264,31 @@ router.post('/login', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/token:
+ *   get:
+ *     summary: Generate a test JWT token for a dummy user (for testing only)
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Returns a JWT token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ */
+router.get('/token', (req, res) => {
+  const payload = {
+    id: 'test-user-id',
+    email: 'testuser@example.com',
+    role: 'user'
+  };
+  const token = require('jsonwebtoken').sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+  res.json({ token });
+});
+
 module.exports = router;
