@@ -281,14 +281,35 @@ router.post('/login', async (req, res) => {
  *                 token:
  *                   type: string
  */
-router.get('/token', (req, res) => {
-  const payload = {
-    id: 'test-user-id',
-    email: 'testuser@example.com',
-    role: 'user'
-  };
-  const token = require('jsonwebtoken').sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
-  res.json({ token });
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+router.get('/token', async (req, res) => {
+  try {
+    // Find or create a test user
+    let user = await User.findOne({ email: 'testuser@example.com' });
+    if (!user) {
+      user = new User({
+        email: 'testuser@example.com',
+        password: 'Test@1234', // You may want to hash this or set a default
+        role: 'user',
+        displayName: 'Test User'
+      });
+      await user.save();
+    }
+
+    const payload = {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+    res.json({ token });
+  } catch (error) {
+    console.error('Error generating test token:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate token' });
+  }
 });
 
 module.exports = router;
