@@ -1,5 +1,7 @@
 const express = require('express');
 const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { authenticateJWT } = require('../middleware/auth');
 const User = require('../models/User');
 
@@ -195,6 +197,71 @@ router.get('/failure', (req, res) => {
     success: false,
     message: 'Authentication failed'
   });
+});
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: User login with email and password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Successful login, returns JWT token and user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+    const payload = {
+      id: user._id,
+      email: user.email,
+      role: user.role
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+    res.json({
+      success: true,
+      token,
+      user: user.getPublicProfile()
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 module.exports = router;
