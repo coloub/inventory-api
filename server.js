@@ -59,6 +59,15 @@ app.use('/api/v1/products', require('./routes/products')); // Will be protected
 app.use('/api/v1/categories', require('./routes/categories')); // Will be protected
 app.use('/api/v1/transactions', require('./routes/transactions')); // NEW: Transaction routes
 
+// Serve frontend static files
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+// Serve frontend index.html for /dashboard route to handle token in URL
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
 // Health check route
 app.get('/', (req, res) => {
   res.json({
