@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory API Frontend</title>
+</head>
+<body>
+  <h1>Welcome to Inventory API Frontend</h1>
+  <p>This is a simple placeholder frontend for your Inventory API project.</p>
+  <p>After login, users will be redirected here with a token in the URL.</p>
+  <script>
+    // Parse token from URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      document.body.insertAdjacentHTML('beforeend', '<p>Logged in with token: ' + token + '</p>');
+      // You can store the token in localStorage or cookies here for further API calls
+      localStorage.setItem('authToken', token);
+    } else {
+      document.body.insertAdjacentHTML('beforeend', '<p>No token found. Please login.</p>');
+    }
+  </script>
+</body>
+</html>
