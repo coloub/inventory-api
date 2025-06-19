@@ -124,7 +124,12 @@ router.use(authenticateJWT);
  * @swagger
  * /api/v1/transactions:
  *   get:
- *     summary: Get all transactions
+ *     summary: This endpoint returns all transactions in the system. No filters are required. Results are automatically sorted by date (newest first).
+ *     description: >
+ *       This endpoint returns all transactions in the system. No filters or parameters are required to execute this endpoint. 
+ *       All filters (type, product, user, startDate, endDate) are optional and do not block execution.
+ *       Results are automatically sorted by date in descending order (newest first).
+ *       This is the easiest way to quickly browse the transaction history.
  *     tags: [Transactions]
  *     security:
  *       - bearerAuth: []
@@ -134,70 +139,111 @@ router.use(authenticateJWT);
  *         schema:
  *           type: string
  *           enum: [input, output]
- *         description: Filter by transaction type. Select either 'input' for stock addition or 'output' for stock removal.
+ *         description: Filter by transaction type. Select either 'input' for stock addition or 'output' for stock removal. Optional.
  *         example: input
  *       - in: query
  *         name: product
  *         schema:
  *           type: string
- *         description: Filter by product ID. Select from available products like "60d0fe4f5311236168a109ca" (Wireless Mouse), "60d0fe4f5311236168a109cb" (Keyboard).
+ *         description: Filter by product ID. Select from available products like "60d0fe4f5311236168a109ca" (Wireless Mouse), "60d0fe4f5311236168a109cb" (Keyboard). Optional.
  *         example: "60d0fe4f5311236168a109ca"
  *       - in: query
  *         name: user
  *         schema:
  *           type: string
- *         description: Filter by user ID. Select from users like "60d0fe4f5311236168a109cb" (John Doe), "60d0fe4f5311236168a109cc" (Jane Smith).
+ *         description: Filter by user ID. Select from users like "60d0fe4f5311236168a109cb" (John Doe), "60d0fe4f5311236168a109cc" (Jane Smith). Optional.
  *         example: "60d0fe4f5311236168a109cb"
  *       - in: query
  *         name: startDate
  *         schema:
  *           type: string
  *           format: date
- *         description: Filter transactions from this date (YYYY-MM-DD). Example: "2023-01-01"
+ *         description: Filter transactions from this date (YYYY-MM-DD). Example: "2023-01-01". Optional.
  *         example: "2023-01-01"
  *       - in: query
  *         name: endDate
  *         schema:
  *           type: string
  *           format: date
- *         description: Filter transactions until this date (YYYY-MM-DD). Example: "2023-12-31"
+ *         description: Filter transactions until this date (YYYY-MM-DD). Example: "2023-12-31". Optional.
  *         example: "2023-12-31"
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number for pagination
+ *         description: Page number for pagination. Optional.
  *         example: 1
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 10
- *         description: Number of transactions per page
+ *         description: Number of transactions per page. Optional.
  *         example: 10
  *     responses:
  *       200:
- *         description: List of transactions
+ *         description: List of transactions sorted by date (newest first)
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 count:
- *                   type: integer
- *                 totalCount:
- *                   type: integer
- *                 currentPage:
- *                   type: integer
- *                 totalPages:
- *                   type: integer
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Transaction'
+ *             example:
+ *               success: true
+ *               count: 3
+ *               totalCount: 3
+ *               currentPage: 1
+ *               totalPages: 1
+ *               data:
+ *                 - _id: "60d0fe4f5311236168a109ca"
+ *                   type: "input"
+ *                   product:
+ *                     _id: "60d0fe4f5311236168a109ca"
+ *                     name: "Wireless Mouse"
+ *                     sku: "WM-001"
+ *                     category: "Electronics"
+ *                     quantity: 200
+ *                   quantity: 50
+ *                   user:
+ *                     _id: "60d0fe4f5311236168a109cb"
+ *                     name: "John Doe"
+ *                     email: "john@example.com"
+ *                   date: "2023-06-02T12:00:00Z"
+ *                   notes: "Restocking from supplier XYZ"
+ *                   createdAt: "2023-06-02T12:00:00Z"
+ *                   updatedAt: "2023-06-02T12:00:00Z"
+ *                 - _id: "60d0fe4f5311236168a109cb"
+ *                   type: "output"
+ *                   product:
+ *                     _id: "60d0fe4f5311236168a109cb"
+ *                     name: "Keyboard"
+ *                     sku: "KB-002"
+ *                     category: "Electronics"
+ *                     quantity: 150
+ *                   quantity: 20
+ *                   user:
+ *                     _id: "60d0fe4f5311236168a109cc"
+ *                     name: "Jane Smith"
+ *                     email: "jane@example.com"
+ *                   date: "2023-06-01T15:00:00Z"
+ *                   notes: "Order fulfillment"
+ *                   createdAt: "2023-06-01T15:00:00Z"
+ *                   updatedAt: "2023-06-01T15:00:00Z"
+ *                 - _id: "60d0fe4f5311236168a109cc"
+ *                   type: "input"
+ *                   product:
+ *                     _id: "60d0fe4f5311236168a109cc"
+ *                     name: "USB Cable"
+ *                     sku: "UC-003"
+ *                     category: "Accessories"
+ *                     quantity: 300
+ *                   quantity: 100
+ *                   user:
+ *                     _id: "60d0fe4f5311236168a109cd"
+ *                     name: "Alice Johnson"
+ *                     email: "alice@example.com"
+ *                   date: "2023-05-30T09:00:00Z"
+ *                   notes: "New stock arrival"
+ *                   createdAt: "2023-05-30T09:00:00Z"
+ *                   updatedAt: "2023-05-30T09:00:00Z"
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
