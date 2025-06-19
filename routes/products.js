@@ -21,13 +21,13 @@ router.use(authenticateJWT); // NEW: All product routes now require authenticati
  *   schemas:
  *     Product:
  *       type: object
- *         required:
- *           - name
- *           - description
- *           - price
- *           - quantity
- *           - category
- *           - vendor
+ *       required:
+ *         - name
+ *         - description
+ *         - price
+ *         - quantity
+ *         - category
+ *         - vendor
  *       properties:
  *         _id:
  *           type: string
@@ -145,13 +145,13 @@ router.get('/:id', getProduct);
  *         application/json:
  *           schema:
  *             type: object
- *         required:
- *           - name
- *           - description
- *           - price
- *           - quantity
- *           - category
- *           - vendor
+ *             required:
+ *               - name
+ *               - description
+ *               - price
+ *               - quantity
+ *               - category
+ *               - vendor
  *             properties:
  *               name:
  *                 type: string
@@ -270,10 +270,6 @@ router.put('/:id', productValidation, handleValidationErrors, updateProduct);
  *       404:
  *         description: Product not found
  */
-router.get('/', getProducts);
-router.get('/:id', getProduct);
-router.post('/', productValidation, handleValidationErrors, createProduct);
-router.put('/:id', productValidation, handleValidationErrors, updateProduct);
 router.delete('/:id', requireAdmin, deleteProduct); // NEW: Only admin can delete
 
 module.exports = router;

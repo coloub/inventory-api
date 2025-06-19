@@ -50,7 +50,8 @@ const productSchema = new mongoose.Schema({
 
 // Create index for better search performance
 productSchema.index({ name: 'text', description: 'text' });
-productSchema.index({ sku: 1 });
+// Removed duplicate index declaration for sku because unique: true already creates index
+// productSchema.index({ sku: 1 });
 productSchema.index({ category: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

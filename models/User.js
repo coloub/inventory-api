@@ -45,8 +45,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for better query performance
-userSchema.index({ email: 1 });
-userSchema.index({ googleId: 1 });
+// Removed duplicate index declarations because unique: true already creates indexes
+// userSchema.index({ email: 1 });
+// userSchema.index({ googleId: 1 });
 
 // Instance method to generate JWT token
 userSchema.methods.getSignedJwtToken = function() {
