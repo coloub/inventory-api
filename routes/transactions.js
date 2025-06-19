@@ -9,7 +9,7 @@ const {
 } = require('../controllers/transactionController');
 
 const { transactionValidation, handleValidationErrors } = require('../middleware/validation');
-const { authenticateJWT, requireAdmin } = require('../middleware/auth');
+const { authenticateJWT, isAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -390,7 +390,7 @@ router.get('/:id', getTransactionById);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/', transactionValidation, handleValidationErrors, createTransaction);
+router.post('/', transactionValidation, handleValidationErrors, isAdmin, createTransaction);
 
 /**
  * @swagger
@@ -494,7 +494,7 @@ router.post('/', transactionValidation, handleValidationErrors, createTransactio
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.put('/:id', transactionValidation, handleValidationErrors, updateTransaction);
+router.put('/:id', transactionValidation, handleValidationErrors, isAdmin, updateTransaction);
 
 /**
  * @swagger
@@ -532,6 +532,6 @@ router.put('/:id', transactionValidation, handleValidationErrors, updateTransact
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.delete('/:id', requireAdmin, deleteTransaction);
+router.delete('/:id', isAdmin, deleteTransaction);
 
 module.exports = router;

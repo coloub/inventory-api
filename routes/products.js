@@ -8,12 +8,12 @@ const {
 } = require('../controllers/productController');
 
 const { productValidation, handleValidationErrors } = require('../middleware/validation');
-const { authenticateJWT, requireAdmin } = require('../middleware/auth'); // NEW
+const { authenticateJWT, isAdmin } = require('../middleware/auth'); // Updated to use isAdmin
 
 const router = express.Router();
 
 // Apply authentication to all routes
-router.use(authenticateJWT); // NEW: All product routes now require authentication
+router.use(authenticateJWT); // All product routes now require authentication
 
 // Test route to trigger 500 error
 router.get('/test-error-500', (req, res, next) => {
@@ -196,7 +196,8 @@ router.get('/:id', getProduct);
  *       400:
  *         description: Validation error
  */
-router.post('/', productValidation, handleValidationErrors, createProduct);
+router.post('/', productValidation, handleValidationErrors, isAdmin, createProduct);
+
 
 /**
  * @swagger
@@ -256,7 +257,8 @@ router.post('/', productValidation, handleValidationErrors, createProduct);
  *       400:
  *         description: Validation error
  */
-router.put('/:id', productValidation, handleValidationErrors, updateProduct);
+router.put('/:id', productValidation, handleValidationErrors, isAdmin, updateProduct);
+
 
 /**
  * @swagger
@@ -277,6 +279,7 @@ router.put('/:id', productValidation, handleValidationErrors, updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', requireAdmin, deleteProduct); // NEW: Only admin can delete
+router.delete('/:id', isAdmin, deleteProduct); // Only admin can delete
+
 
 module.exports = router;

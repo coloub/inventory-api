@@ -8,7 +8,7 @@ const {
 } = require('../controllers/categoryController');
 
 const { categoryValidation, handleValidationErrors } = require('../middleware/validation');
-const { authenticateJWT, requireAdmin } = require('../middleware/auth'); // NEW
+const { authenticateJWT, isAdmin } = require('../middleware/auth'); // Updated to use isAdmin
 
 const router = express.Router();
 
@@ -242,8 +242,8 @@ router.put('/:id', categoryValidation, handleValidationErrors, updateCategory);
  */
 router.get('/', getAllCategories);
 router.get('/:id', getCategoryById);
-router.post('/', categoryValidation, handleValidationErrors, createCategory);
-router.put('/:id', categoryValidation, handleValidationErrors, updateCategory);
-router.delete('/:id', requireAdmin, deleteCategory); // Only admin can delete
+router.post('/', categoryValidation, handleValidationErrors, isAdmin, createCategory);
+router.put('/:id', categoryValidation, handleValidationErrors, isAdmin, updateCategory);
+router.delete('/:id', isAdmin, deleteCategory); // Only admin can delete
 
 module.exports = router;

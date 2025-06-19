@@ -63,7 +63,6 @@ const authenticateJWT = async (req, res, next) => {
   }
 };
 
-// Middleware to check if user has admin role
 const requireAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -87,8 +86,21 @@ const requireOwnershipOrAdmin = (req, res, next) => {
   }
 };
 
+// Middleware to check if user is admin based on email matching ADMIN_EMAIL env variable
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.email === process.env.ADMIN_EMAIL) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin privileges required.'
+    });
+  }
+};
+
 module.exports = {
   authenticateJWT,
   requireAdmin,
-  requireOwnershipOrAdmin
+  requireOwnershipOrAdmin,
+  isAdmin
 };
