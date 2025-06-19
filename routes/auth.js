@@ -103,8 +103,11 @@ router.post('/signup', async (req, res) => {
   }
 
   try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    // Debug log normalized email
+    console.log('Normalized email for signup:', email);
+
+    // Check if user already exists (case-insensitive)
+    const existingUser = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already in use' });
     }
