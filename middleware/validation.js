@@ -8,6 +8,7 @@ const productValidation = [
     .withMessage('Product name must be between 1 and 100 characters'),
   
   body('sku')
+    .optional()
     .trim()
     .isLength({ min: 1, max: 20 })
     .withMessage('SKU must be between 1 and 20 characters')

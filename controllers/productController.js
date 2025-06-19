@@ -40,11 +40,19 @@ const getProduct = async (req, res, next) => {
   }
 };
 
+const crypto = require('crypto');
+
 // @desc    Create new product
 // @route   POST /api/v1/products
 // @access  Public
 const createProduct = async (req, res, next) => {
   try {
+    // Generate SKU if not provided
+    if (!req.body.sku) {
+      // Generate random 8-character uppercase alphanumeric SKU
+      req.body.sku = crypto.randomBytes(4).toString('hex').toUpperCase();
+    }
+
     const product = await Product.create(req.body);
 
     res.status(201).json({

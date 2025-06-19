@@ -21,14 +21,13 @@ router.use(authenticateJWT); // NEW: All product routes now require authenticati
  *   schemas:
  *     Product:
  *       type: object
- *       required:
- *         - name
- *         - sku
- *         - description
- *         - price
- *         - quantity
- *         - category
- *         - vendor
+ *         required:
+ *           - name
+ *           - description
+ *           - price
+ *           - quantity
+ *           - category
+ *           - vendor
  *       properties:
  *         _id:
  *           type: string
@@ -146,14 +145,13 @@ router.get('/:id', getProduct);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - sku
- *               - description
- *               - price
- *               - quantity
- *               - category
- *               - vendor
+ *         required:
+ *           - name
+ *           - description
+ *           - price
+ *           - quantity
+ *           - category
+ *           - vendor
  *             properties:
  *               name:
  *                 type: string
