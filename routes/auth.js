@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { authenticateJWT } = require('../middleware/auth');
+const { authenticateJWT, requireAdmin } = require('../middleware/auth');
 const User = require('../models/User');
 
 const router = express.Router();
@@ -95,6 +95,8 @@ router.post('/signup', async (req, res) => {
     if (adminSecret !== process.env.JWT_SECRET) {
       return res.status(403).json({ success: false, message: 'Invalid adminSecret' });
     }
+  } else {
+    // For regular users, ignore adminSecret if provided
   }
 
   try {
@@ -296,6 +298,80 @@ router.post('/logout', (req, res) => {
       message: 'Logged out successfully'
     });
   });
+});
+
+/**
+ * @swagger
+ * /auth/upgrade:
+ *   post:
+ *     summary: Upgrade user role to admin by providing adminSecret
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - adminSecret
+ *             properties:
+ *               adminSecret:
+ *                 type: string
+ *                 description: Secret key required to upgrade to admin role. Must match the server's JWT_SECRET.
+ *                 example: your_jwt_secret_here
+ *     responses:
+ *       200:
+ *         description: Role upgraded to admin successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Bad request (missing adminSecret)
+ *       403:
+ *         description: Forbidden (invalid adminSecret)
+ *       401:
+ *         description: Unauthorized (not authenticated)
+ *       500:
+ *         description: Server error
+ */
+router.post('/upgrade', authenticateJWT, async (req, res) => {
+  const { adminSecret } = req.body;
+
+  if (!adminSecret) {
+    return res.status(400).json({ success: false, message: 'adminSecret is required' });
+  }
+
+  if (adminSecret !== process.env.JWT_SECRET) {
+    return res.status(403).json({ success: false, message: 'Invalid adminSecret' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(200).json({ success: true, message: 'User is already an admin' });
+    }
+
+    user.role = 'admin';
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Role upgraded to admin successfully' });
+  } catch (error) {
+    console.error('Role upgrade error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 /**

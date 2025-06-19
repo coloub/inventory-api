@@ -22,7 +22,8 @@ module.exports = function(passport) {
             await user.save();
             return done(null, user);
           } else {
-            // User doesn't exist, create new user
+            // User doesn't exist, create new user with default role 'user'
+            // Admin users must be created via registration or role upgrade endpoint
             const newUser = await User.create({
               googleId: profile.id,
               displayName: profile.displayName,
