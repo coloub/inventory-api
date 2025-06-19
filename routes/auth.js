@@ -121,7 +121,13 @@ router.post('/signup', async (req, res) => {
     });
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 });
 
