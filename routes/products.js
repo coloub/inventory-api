@@ -15,6 +15,13 @@ const router = express.Router();
 // Apply authentication to all routes
 router.use(authenticateJWT); // NEW: All product routes now require authentication
 
+// Test route to trigger 500 error
+router.get('/test-error-500', (req, res, next) => {
+  const error = new Error('This is a test internal server error');
+  // No statusCode set to trigger 500 in errorHandler
+  next(error);
+});
+
 /**
  * @swagger
  * components:

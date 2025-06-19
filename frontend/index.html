@@ -34,6 +34,7 @@
       <li><a href="/api/v1/products">Products API</a></li>
       <li><a href="/api/v1/categories">Categories API</a></li>
       <li><a href="/api/v1/transactions">Transactions API</a></li>
+      <li><button id="testErrorBtn" style="font-size:16px; padding:6px 10px; cursor:pointer;">Test Error 500</button></li>
     </ul>
   </nav>
 
@@ -62,6 +63,19 @@
     } else {
       tokenContainer.textContent = 'No token found. Please login.';
     }
+
+    // Add event listener for Test Error 500 button
+    const testErrorBtn = document.getElementById('testErrorBtn');
+    testErrorBtn.addEventListener('click', () => {
+      fetch('/api/v1/products/test-error-500')
+        .then(response => response.json())
+        .then(data => {
+          alert('Response: ' + JSON.stringify(data));
+        })
+        .catch(error => {
+          alert('Error: ' + error.message);
+        });
+    });
   </script>
 </body>
 </html>
