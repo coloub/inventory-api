@@ -9,6 +9,103 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /auth/signup:
+ *   post:
+ *     summary: Create a new user account (regular user or admin)
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - displayName
+ *               - email
+ *               - password
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 description: User's display name
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                 example: johndoe@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: User's password
+ *                 example: Password123!
+ *               adminSecret:
+ *                 type: string
+ *                 description: >
+ *                   Optional secret key to create an admin account. Must match the server's JWT_SECRET.
+ *                   Required only for admin account creation.
+ *                 example: your_jwt_secret_here
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request (validation errors)
+ *       403:
+ *         description: Forbidden (invalid adminSecret)
+ *       500:
+ *         description: Server error
+ */
+router.post('/signup', async (req, res) => {
+  const { displayName, email, password, adminSecret } = req.body;
+
+  if (!displayName || !email || !password) {
+    return res.status(400).json({ success: false, message: 'Display name, email, and password are required' });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+
+    let role = 'user';
+    if (adminSecret) {
+      if (adminSecret !== process.env.JWT_SECRET) {
+        return res.status(403).json({ success: false, message: 'Invalid adminSecret' });
+      }
+      role = 'admin';
+    }
+
+    const newUser = new User({
+      displayName,
+      email,
+      password,
+      role
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      user: newUser.getPublicProfile()
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     User:
