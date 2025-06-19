@@ -7,76 +7,11 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-/**
- * @swagger
- * /auth/signup:
- *   post:
- *     summary: Create a new user account (regular user or admin)
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - displayName
- *               - email
- *               - password
- *               - role
- *             properties:
- *               displayName:
- *                 type: string
- *                 description: User's display name
- *                 example: John Doe
- *               email:
- *                 type: string
- *                 format: email
- *                 description: User's email address
- *                 example: johndoe@example.com
- *               password:
- *                 type: string
- *                 format: password
- *                 description: User's password
- *                 example: Password123!
- *               role:
- *                 type: string
- *                 enum: [user, admin]
- *                 description: Role of the user to create
- *                 example: user
- *               adminSecret:
- *                 type: string
- *                 description: >
- *                   Secret key required only if role is "admin". Must match the server's JWT_SECRET.
- *                 example: your_jwt_secret_here
- *             oneOf:
- *               - required: [displayName, email, password, role]
- *                 properties:
- *                   role:
- *                     enum: [user]
- *               - required: [displayName, email, password, role, adminSecret]
- *                 properties:
- *                   role:
- *                     enum: [admin]
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       400:
- *         description: Bad request (validation errors)
- *       403:
- *         description: Forbidden (invalid adminSecret)
- *       500:
- *         description: Server error
+/*
+ * Signup endpoint removed as authentication is now handled exclusively via Google OAuth.
+ * Manual signup is no longer supported.
  */
+/*
 router.post('/signup', async (req, res) => {
   let { displayName, email, password, role = 'user', adminSecret } = req.body;
 
@@ -172,7 +107,9 @@ router.post('/signup', async (req, res) => {
  *   get:
  *     summary: Initiate Google OAuth login
  *     tags: [Authentication]
- *     description: Redirects user to Google OAuth consent screen
+ *     description: >
+ *       Redirects user to Google OAuth consent screen.
+ *       User role assignment happens automatically based on email matching with ADMIN_EMAIL environment variable.
  *     responses:
  *       302:
  *         description: Redirect to Google OAuth
@@ -312,48 +249,11 @@ router.post('/logout', (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /auth/upgrade:
- *   post:
- *     summary: Upgrade user role to admin by providing adminSecret
- *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - adminSecret
- *             properties:
- *               adminSecret:
- *                 type: string
- *                 description: Secret key required to upgrade to admin role. Must match the server's JWT_SECRET.
- *                 example: your_jwt_secret_here
- *     responses:
- *       200:
- *         description: Role upgraded to admin successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       400:
- *         description: Bad request (missing adminSecret)
- *       403:
- *         description: Forbidden (invalid adminSecret)
- *       401:
- *         description: Unauthorized (not authenticated)
- *       500:
- *         description: Server error
+/*
+ * Upgrade endpoint removed as role assignment is now automatic via Google OAuth.
+ * Manual role upgrade is no longer supported.
  */
+/*
 router.post('/upgrade', authenticateJWT, async (req, res) => {
   const { adminSecret } = req.body;
 
@@ -403,43 +303,11 @@ router.get('/failure', (req, res) => {
   });
 });
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     summary: User login with email and password
- *     tags: [Authentication]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       200:
- *         description: Successful login, returns JWT token and user info
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         description: Invalid credentials
+/*
+ * Login endpoint removed as authentication is now handled exclusively via Google OAuth.
+ * Manual login is no longer supported.
  */
+/*
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
