@@ -134,41 +134,48 @@ router.use(authenticateJWT);
  *         schema:
  *           type: string
  *           enum: [input, output]
- *         description: Filter by transaction type
+ *         description: Filter by transaction type. Select either 'input' for stock addition or 'output' for stock removal.
+ *         example: input
  *       - in: query
  *         name: product
  *         schema:
  *           type: string
- *         description: Filter by product ID
+ *         description: Filter by product ID. Select from available products like "60d0fe4f5311236168a109ca" (Wireless Mouse), "60d0fe4f5311236168a109cb" (Keyboard).
+ *         example: "60d0fe4f5311236168a109ca"
  *       - in: query
  *         name: user
  *         schema:
  *           type: string
- *         description: Filter by user ID
+ *         description: Filter by user ID. Select from users like "60d0fe4f5311236168a109cb" (John Doe), "60d0fe4f5311236168a109cc" (Jane Smith).
+ *         example: "60d0fe4f5311236168a109cb"
  *       - in: query
  *         name: startDate
  *         schema:
  *           type: string
  *           format: date
- *         description: Filter transactions from this date
+ *         description: Filter transactions from this date (YYYY-MM-DD). Example: "2023-01-01"
+ *         example: "2023-01-01"
  *       - in: query
  *         name: endDate
  *         schema:
  *           type: string
  *           format: date
- *         description: Filter transactions until this date
+ *         description: Filter transactions until this date (YYYY-MM-DD). Example: "2023-12-31"
+ *         example: "2023-12-31"
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
  *         description: Page number for pagination
+ *         example: 1
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 10
  *         description: Number of transactions per page
+ *         example: 10
  *     responses:
  *       200:
  *         description: List of transactions
@@ -210,7 +217,9 @@ router.get('/', getAllTransactions);
  *         required: true
  *         schema:
  *           type: string
- *         description: Transaction ID
+ *         description: >
+ *           Transaction ID. You can copy the Transaction ID from a previously created transaction and paste it here to retrieve it.
+ *         example: "60d0fe4f5311236168a109ca"
  *     responses:
  *       200:
  *         description: Transaction found
@@ -264,13 +273,33 @@ router.get('/:id', getTransactionById);
  *         description: Transaction created successfully
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Transaction'
+ *             examples:
+ *               successResponse:
+ *                 summary: Successful creation response
+ *                 value:
+ *                   success: true
+ *                   data:
+ *                     type: "input"
+ *                     product:
+ *                       _id: "60d0fe4f5311236168a109ca"
+ *                       name: "Wireless Mouse"
+ *                       sku: "WM-001"
+ *                       category: "Electronics"
+ *                       quantity: 200
+ *                     quantity: 100
+ *                     user:
+ *                       _id: "60d0fe4f5311236168a109cb"
+ *                       name: "John Doe"
+ *                       email: "john@example.com"
+ *                     notes: "New shipment received"
+ *                     date: "2023-06-01T12:00:00Z"
+ *                     createdAt: "2023-06-01T12:00:00Z"
+ *                     updatedAt: "2023-06-01T12:00:00Z"
+ *               errorResponse:
+ *                 summary: Validation error or insufficient stock
+ *                 value:
+ *                   success: false
+ *                   message: "Insufficient stock. Available: 10, Requested: 25"
  *       400:
  *         description: Validation error or insufficient stock
  *         content:
@@ -303,41 +332,87 @@ router.post('/', transactionValidation, handleValidationErrors, createTransactio
  *         required: true
  *         schema:
  *           type: string
- *         description: Transaction ID
+ *         description: Transaction ID to update. This should be a valid ObjectId. You can copy it from the response of a GET or POST transaction.
+ *         example: "60d0fe4f5311236168a109ca"
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - type
+ *               - product
+ *               - quantity
  *             properties:
  *               type:
  *                 type: string
  *                 enum: [input, output]
+ *                 description: Transaction type (input for stock addition, output for stock removal)
  *               product:
  *                 type: string
+ *                 description: Product ID (MongoDB ObjectId)
  *               quantity:
  *                 type: integer
  *                 minimum: 1
+ *                 description: Quantity of items
  *               notes:
  *                 type: string
  *                 maxLength: 500
- *           example:
- *             type: "input"
- *             quantity: 75
- *             notes: "Updated quantity after recount"
+ *                 description: Optional notes
+ *           examples:
+ *             stockInput:
+ *               summary: Stock Input Transaction
+ *               value:
+ *                 type: "input"
+ *                 product: "60d0fe4f5311236168a109ca"
+ *                 quantity: 100
+ *                 notes: "New shipment received"
+ *             stockOutput:
+ *               summary: Stock Output Transaction
+ *               value:
+ *                 type: "output"
+ *                 product: "60d0fe4f5311236168a109ca"
+ *                 quantity: 25
+ *                 notes: "Order fulfillment"
+ *             minimalUpdate:
+ *               summary: Minimal update with required fields only
+ *               value:
+ *                 type: "input"
+ *                 product: "60d0fe4f5311236168a109ca"
+ *                 quantity: 50
  *     responses:
  *       200:
  *         description: Transaction updated successfully
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Transaction'
+ *             examples:
+ *               successResponse:
+ *                 summary: Successful update response
+ *                 value:
+ *                   success: true
+ *                   data:
+ *                     type: "input"
+ *                     product:
+ *                       _id: "60d0fe4f5311236168a109ca"
+ *                       name: "Wireless Mouse"
+ *                       sku: "WM-001"
+ *                       category: "Electronics"
+ *                       quantity: 150
+ *                     quantity: 75
+ *                     user:
+ *                       _id: "60d0fe4f5311236168a109cb"
+ *                       name: "John Doe"
+ *                       email: "john@example.com"
+ *                     notes: "Updated quantity after recount"
+ *                     date: "2023-06-01T12:00:00Z"
+ *                     createdAt: "2023-06-01T12:00:00Z"
+ *                     updatedAt: "2023-06-02T12:00:00Z"
+ *               errorResponse:
+ *                 summary: Validation error or insufficient stock
+ *                 value:
+ *                   success: false
+ *                   message: "Insufficient stock. Available: 10, Requested: 100"
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  *       400:
