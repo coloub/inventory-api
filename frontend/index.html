@@ -25,6 +25,18 @@
   <div id="tokenContainer"></div>
   <button id="copyButton" style="display:none;">Copy Token</button>
   <div id="copyMessage">Token copied to clipboard!</div>
+
+  <nav>
+    <ul>
+      <li><a href="/auth/google">Login with Google</a></li>
+      <li><a href="/api-docs">API Documentation</a></li>
+      <li><a href="/auth">Authentication API</a></li>
+      <li><a href="/api/v1/products">Products API</a></li>
+      <li><a href="/api/v1/categories">Categories API</a></li>
+      <li><a href="/api/v1/transactions">Transactions API</a></li>
+    </ul>
+  </nav>
+
   <script>
     // Parse token from URL query string
     const urlParams = new URLSearchParams(window.location.search);
