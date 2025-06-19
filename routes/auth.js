@@ -78,11 +78,14 @@ const router = express.Router();
  *         description: Server error
  */
 router.post('/signup', async (req, res) => {
-  const { displayName, email, password, role = 'user', adminSecret } = req.body;
+  let { displayName, email, password, role = 'user', adminSecret } = req.body;
 
   if (!displayName || !email || !password) {
     return res.status(400).json({ success: false, message: 'Display name, email, and password are required' });
   }
+
+  // Normalize email to lowercase and trim spaces
+  email = email.toLowerCase().trim();
 
   if (!['user', 'admin'].includes(role)) {
     return res.status(400).json({ success: false, message: 'Role must be either "user" or "admin"' });
