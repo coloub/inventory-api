@@ -1,6 +1,10 @@
 // server.js o index.js
 const app = require('./server');
 const cors = require('cors'); // 👈 Importar CORS
+const connectDB = require('./config/db');
+
+// Connect to database
+connectDB();
 
 // Usar CORS (permite llamadas desde otros orígenes, como tu frontend)
 app.use(cors({

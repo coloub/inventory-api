@@ -14,9 +14,6 @@ dotenv.config();
 // Passport configuration
 require('./config/passport')(passport); // NEW
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Body parser middleware
