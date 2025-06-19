@@ -4,7 +4,8 @@ const {
   getTransactionById,
   createTransaction,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  getTransactionHistory
 } = require('../controllers/transactionController');
 
 const { transactionValidation, handleValidationErrors } = require('../middleware/validation');
@@ -247,6 +248,33 @@ router.use(authenticateJWT);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
+/**
+ * @swagger
+ * /api/v1/transactions/history:
+ *   get:
+ *     summary: Returns a complete list of all transactions sorted by date (newest first). No filters or parameters required.
+ *     tags: [Transactions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all transactions sorted by date (newest first)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ */
+router.get('/history', getTransactionHistory);
+
 router.get('/', getAllTransactions);
 
 /**

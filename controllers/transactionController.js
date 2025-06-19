@@ -287,10 +287,27 @@ const deleteTransaction = async (req, res, next) => {
   }
 };
 
+const getTransactionHistory = async (req, res, next) => {
+  try {
+    // Fetch all transactions sorted by date descending (newest first)
+    const transactions = await Transaction.find({})
+      .sort({ date: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: transactions.length,
+      data: transactions
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllTransactions,
   getTransactionById,
   createTransaction,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  getTransactionHistory
 };
