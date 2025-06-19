@@ -23,6 +23,7 @@ const router = express.Router();
  *               - displayName
  *               - email
  *               - password
+ *               - role
  *             properties:
  *               displayName:
  *                 type: string
@@ -38,12 +39,25 @@ const router = express.Router();
  *                 format: password
  *                 description: User's password
  *                 example: Password123!
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
+ *                 description: Role of the user to create
+ *                 example: user
  *               adminSecret:
  *                 type: string
  *                 description: >
- *                   Optional secret key to create an admin account. Must match the server's JWT_SECRET.
- *                   Required only for admin account creation.
+ *                   Secret key required only if role is "admin". Must match the server's JWT_SECRET.
  *                 example: your_jwt_secret_here
+ *             oneOf:
+ *               - required: [displayName, email, password, role]
+ *                 properties:
+ *                   role:
+ *                     enum: [user]
+ *               - required: [displayName, email, password, role, adminSecret]
+ *                 properties:
+ *                   role:
+ *                     enum: [admin]
  *     responses:
  *       201:
  *         description: User created successfully
@@ -64,10 +78,23 @@ const router = express.Router();
  *         description: Server error
  */
 router.post('/signup', async (req, res) => {
-  const { displayName, email, password, adminSecret } = req.body;
+  const { displayName, email, password, role = 'user', adminSecret } = req.body;
 
   if (!displayName || !email || !password) {
     return res.status(400).json({ success: false, message: 'Display name, email, and password are required' });
+  }
+
+  if (!['user', 'admin'].includes(role)) {
+    return res.status(400).json({ success: false, message: 'Role must be either "user" or "admin"' });
+  }
+
+  if (role === 'admin') {
+    if (!adminSecret) {
+      return res.status(400).json({ success: false, message: 'adminSecret is required for admin role' });
+    }
+    if (adminSecret !== process.env.JWT_SECRET) {
+      return res.status(403).json({ success: false, message: 'Invalid adminSecret' });
+    }
   }
 
   try {
@@ -75,14 +102,6 @@ router.post('/signup', async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already in use' });
-    }
-
-    let role = 'user';
-    if (adminSecret) {
-      if (adminSecret !== process.env.JWT_SECRET) {
-        return res.status(403).json({ success: false, message: 'Invalid adminSecret' });
-      }
-      role = 'admin';
     }
 
     const newUser = new User({
